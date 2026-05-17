@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Анкета — Задание 4 (Cookies + валидация)</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .error-field {
+            border: 2px solid red !important;
+            background: #fff0f0;
+        }
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .radio-group label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: normal;
+        }
+        .radio-group input {
+            width: auto;
+        }
+        select[multiple] {
+            height: 140px;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .checkbox-group input {
+            width: auto;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        .success-message {
+            background: #e0ffe8;
+            color: #2a6e3b;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2a6e3b;
+        }
+        .error-message {
+            background: #fee;
+            color: #c00;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #c00;
+        }
+        .error-list {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .field-error-text {
+            color: red;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .note {
+            text-align: center;
+            color: gray;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Регистрационная анкета — Задание 4</h1>
+    
+    <div id="messageArea"></div>
+    
+    <div class="note">(Все поля, отмеченные *, обязательны для заполнения. Данные сохраняются в Cookies на год.)</div>
+
+    <form id="anketaForm">
+        <!-- 1. ФИО -->
+        <div class="form-group">
+            <label>1. ФИО *</label>
+            <input type="text" id="fio" name="fio" placeholder="Иванов Иван Иванович">
+            <div class="field-error-text" id="fioError"></div>
+        </div>
+
+        <!-- 2. Телефон -->
+        <div class="form-group">
+            <label>2. Телефон *</label>
+            <input type="text" id="phone" name="phone" placeholder="+7 (999) 123-45-67">
+            <div class="field-error-text" id="phoneError"></div>
+        </div>
+
+        <!-- 3. Email -->
+        <div class="form-group">
+            <label>3. E-mail *</label>
+            <input type="text" id="email" name="email" placeholder="example@mail.ru">
+            <div class="field-error-text" id="emailError"></div>
+        </div>
+
+        <!-- 4. Дата рождения -->
+        <div class="form-group">
+            <label>4. Дата рождения *</label>
+            <input type="date" id="birth_date" name="birth_date">
+            <div class="field-error-text" id="birth_dateError"></div>
+        </div>
+
+        <!-- 5. Пол -->
+        <div class="form-group">
+            <label>5. Пол *</label>
+            <div class="radio-group">
+                <label><input type="radio" name="gender" value="male"> Мужской</label>
+                <label><input type="radio" name="gender" value="female"> Женский</label>
+                <label><input type="radio" name="gender" value="other"> Другой</label>
+            </div>
+            <div class="field-error-text" id="genderError"></div>
+        </div>
+
+        <!-- 6. Любимые языки -->
+        <div class="form-group">
+            <label>6. Любимые языки программирования *</label>
+            <select id="languages" name="languages[]" multiple>
+                <option value="1">Pascal</option>
+                <option value="2">C</option>
+                <option value="3">C++</option>
+                <option value="4">JavaScript</option>
+                <option value="5">PHP</option>
+                <option value="6">Python</option>
+                <option value="7">Java</option>
+                <option value="8">Haskell</option>
+                <option value="9">Clojure</option>
+                <option value="10">Prolog</option>
+                <option value="11">Scala</option>
+                <option value="12">Go</option>
+            </select>
+            <div class="field-error-text" id="languagesError"></div>
+        </div>
+
+        <!-- 7. Биография -->
+        <div class="form-group">
+            <label>7. Биография</label>
+            <textarea id="biography" name="biography" rows="5" placeholder="Расскажите о себе..."></textarea>
+        </div>
+
+        <!-- 8. Контракт -->
+        <div class="form-group checkbox-group">
+            <input type="checkbox" id="contract" name="contract" value="1">
+            <label>Я ознакомлен(а) с контрактом *</label>
+            <div class="field-error-text" id="contractError"></div>
+        </div>
+
+        <button type="submit">Сохранить</button>
+    </form>
+</div>
+
+<script>
+    // Функция сохранения в Cookies на год
+    function setCookie(name, value, days = 365) {
+        let expires = "";
+        if (days) {
+            const date = new Date();
+            date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+            expires = "; expires=" + date.toUTCString();
+        }
+        document.cookie = name + "=" + (value || "") + expires + "; path=/";
+    }
+
+    // Функция получения Cookie
+    function getCookie(name) {
+        const nameEQ = name + "=";
+        const ca = document.cookie.split(';');
+        for (let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+            if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+        }
+        return null;
+    }
+
+    // Функция удаления Cookie
+    function eraseCookie(name) {
+        document.cookie = name + '=; Max-Age=-99999999; path=/';
+    }
+
+    // Валидация формы
+    function validateForm() {
+        let isValid = true;
+        let errors = [];
+
+        // Очищаем предыдущие ошибки
+        document.querySelectorAll('.error-field').forEach(el => el.classList.remove('error-field'));
+        document.querySelectorAll('.field-error-text').forEach(el => el.innerHTML = '');
+
+        // 1. ФИО
+        const fio = document.getElementById('fio').value.trim();
+        const fioRegex = /^[A-Za-zА-Яа-яЁё\s]+$/;
+        if (!fio) {
+            document.getElementById('fioError').innerHTML = 'ФИО обязательно для заполнения.';
+            document.getElementById('fio').classList.add('error-field');
+            errors.push('ФИО обязательно');
+            isValid = false;
+        } else if (fio.length > 150) {
+            document.getElementById('fioError').innerHTML = 'ФИО не должно превышать 150 символов.';
+            document.getElementById('fio').classList.add('error-field');
+            errors.push('ФИО слишком длинное');
+            isValid = false;
+        } else if (!fioRegex.test(fio)) {
+            document.getElementById('fioError').innerHTML = 'ФИО должно содержать только буквы (русские или английские) и пробелы.';
+            document.getElementById('fio').classList.add('error-field');
+            errors.push('ФИО содержит недопустимые символы');
+            isValid = false;
+        }
+
+        // 2. Телефон
+        const phone = document.getElementById('phone').value.trim();
+        const phoneRegex = /^[\+\(\)\d\s-]{10,20}$/;
+        if (!phone) {
+            document.getElementById('phoneError').innerHTML = 'Телефон обязателен для заполнения.';
+            document.getElementById('phone').classList.add('error-field');
+            errors.push('Телефон обязателен');
+            isValid = false;
+        } else if (!phoneRegex.test(phone)) {
+            document.getElementById('phoneError').innerHTML = 'Телефон должен быть в формате: +7 (999) 123-45-67 или 89123456789.';
+            document.getElementById('phone').classList.add('error-field');
+            errors.push('Неверный формат телефона');
+            isValid = false;
+        }
+
+        // 3. Email
+        const email = document.getElementById('email').value.trim();
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!email) {
+            document.getElementById('emailError').innerHTML = 'Email обязателен для заполнения.';
+            document.getElementById('email').classList.add('error-field');
+            errors.push('Email обязателен');
+            isValid = false;
+        } else if (!emailRegex.test(email)) {
+            document.getElementById('emailError').innerHTML = 'Email должен быть в формате name@domain.ru.';
+            document.getElementById('email').classList.add('error-field');
+            errors.push('Неверный формат email');
+            isValid = false;
+        }
+
+        // 4. Дата рождения
+        const birthDate = document.getElementById('birth_date').value;
+        const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+        if (!birthDate) {
+            document.getElementById('birth_dateError').innerHTML = 'Дата рождения обязательна.';
+            document.getElementById('birth_date').classList.add('error-field');
+            errors.push('Дата рождения обязательна');
+            isValid = false;
+        } else if (!dateRegex.test(birthDate)) {
+            document.getElementById('birth_dateError').innerHTML = 'Дата должна быть в формате ГГГГ-ММ-ДД.';
+            document.getElementById('birth_date').classList.add('error-field');
+            errors.push('Неверный формат даты');
+            isValid = false;
+        }
+
+        // 5. Пол
+        const gender = document.querySelector('input[name="gender"]:checked');
+        if (!gender) {
+            document.getElementById('genderError').innerHTML = 'Выберите пол.';
+            errors.push('Пол не выбран');
+            isValid = false;
+        }
+
+        // 6. Языки
+        const languages = document.getElementById('languages');
+        const selectedLanguages = Array.from(languages.selectedOptions).map(opt => opt.value);
+        if (selectedLanguages.length === 0) {
+            document.getElementById('languagesError').innerHTML = 'Выберите хотя бы один язык программирования.';
+            document.getElementById('languages').classList.add('error-field');
+            errors.push('Языки не выбраны');
+            isValid = false;
+        }
+
+        // 7. Контракт
+        const contract = document.getElementById('contract').checked;
+        if (!contract) {
+            document.getElementById('contractError').innerHTML = 'Необходимо подтвердить согласие с контрактом.';
+            errors.push('Контракт не подтверждён');
+            isValid = false;
+        }
+
+        // Показываем сообщение об ошибках
+        const messageArea = document.getElementById('messageArea');
+        if (!isValid) {
+            messageArea.innerHTML = '<div class="error-message"><strong>⚠️ Пожалуйста, исправьте ошибки:</strong><ul class="error-list">' + 
+                errors.map(err => '<li>• ' + err + '</li>').join('') + '</ul></div>';
+        } else {
+            messageArea.innerHTML = '<div class="success-message">✅ Данные успешно сохранены в Cookies! Форма запомнит их на год.</div>';
+            
+            // Сохраняем данные в Cookies
+            setCookie('fio_value', fio);
+            setCookie('phone_value', phone);
+            setCookie('email_value', email);
+            setCookie('birth_date_value', birthDate);
+            if (gender) setCookie('gender_value', gender.value);
+            setCookie('languages_value', JSON.stringify(selectedLanguages));
+            setCookie('biography_value', document.getElementById('biography').value);
+            setCookie('contract_value', contract ? '1' : '0');
+        }
+        
+        return false; // Предотвращаем отправку формы (так как нет PHP)
+    }
+
+    // Загрузка сохранённых данных из Cookies при загрузке страницы
+    function loadFromCookies() {
+        const fio = getCookie('fio_value');
+        const phone = getCookie('phone_value');
+        const email = getCookie('email_value');
+        const birthDate = getCookie('birth_date_value');
+        const gender = getCookie('gender_value');
+        const languagesStr = getCookie('languages_value');
+        const biography = getCookie('biography_value');
+        const contract = getCookie('contract_value');
+        
+        if (fio) document.getElementById('fio').value = fio;
+        if (phone) document.getElementById('phone').value = phone;
+        if (email) document.getElementById('email').value = email;
+        if (birthDate) document.getElementById('birth_date').value = birthDate;
+        if (biography) document.getElementById('biography').value = biography;
+        
+        if (gender) {
+            const radio = document.querySelector(`input[name="gender"][value="${gender}"]`);
+            if (radio) radio.checked = true;
+        }
+        
+        if (languagesStr) {
+            const savedLanguages = JSON.parse(languagesStr);
+            const select = document.getElementById('languages');
+            for (let i = 0; i < select.options.length; i++) {
+                if (savedLanguages.includes(select.options[i].value)) {
+                    select.options[i].selected = true;
+                }
+            }
+        }
+        
+        if (contract === '1') {
+            document.getElementById('contract').checked = true;
+        }
+    }
+
+    // Назначаем обработчик формы
+    document.getElementById('anketaForm').addEventListener('submit', validateForm);
+    
+    // Загружаем сохранённые данные
+    loadFromCookies();
+</script>
+</body>
+</html>
